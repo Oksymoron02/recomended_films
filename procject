@@ -1,0 +1,59 @@
+import requests
+import json
+
+# API key from TMDb
+api_key = 'enter_your_API_key'
+
+# Fuction to search for movies
+def search_movie(query):
+	url = f'https://api.themoviedb.org/3/search/movie?api_key={api_key}&query={query}'
+	response = requests.get(url)
+	data = json.loads(response.text)
+	results = data['results']
+	return results
+
+# Function to get details about a movie
+def get_movie_details(movie_id):
+	url = f'https://api.themoviedb.org/3/movie/{movie_id}?api_key={api_key}'
+	response = requests.get(url)
+	data = json.loads(response.text)
+	return data
+
+# Function to recommend movies based on user's input
+def recommended_movies():
+	# Ask user for inut
+	query = input("What kind of movies are you interested in? ")
+	print(f"Searching for movies related to '{query}'...")
+
+	# Search for movies related to user's input
+	results = search_movie(query)
+	if len(results) == 0:
+		print(f"No movies related to '{query}'.")
+		return
+
+	# Display search results to user and for selection
+	print("Found the following movies: ")
+	for i, result in enumerate(results):
+		print(f"{i+1}. {result['title']} ({result['release_date'][:4]})")
+	selection = int(input("Select a movie (1-10): ")) -1
+	movie_id = results[selection]['id']
+
+	# Get details about selected movie
+	movie_details = get_movie_details(movie_id)
+	print(f"\nSelected movie: {movie_details['title']} ({movie_details['release_date'][:4]})\n")
+	print(f"Overwiew:\n{movie_details['overview']}\n")
+
+	# Use the genre of selected movie to recommend similar movies
+	genre_id = movie_details['genres'][0]['id']
+	url = f'https://api.themoviedb.org/3/discover/movie?api_key={api_key}&with_genres={genre_id}'
+	response = requests.get(url)
+	data = json.loads(response.text)
+	results = data['results']
+
+	# Display recommended movies to user
+	print(f"Recommended movies based on {movie_details['genres'][0]['name']} genre:")
+	for i, result in enumerate(results):
+		print(f"{i+1}. {result['title']} ({result['release_date'][:4]})")
+
+# Call the recommend_movies function
+recommended_movies()
