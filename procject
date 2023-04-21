@@ -2,7 +2,7 @@ import requests
 import json
 
 # API key from TMDb
-api_key = 'enter_your_API_key'
+api_key = 'enter_your_API_key_here'
 
 # Fuction to search for movies
 def search_movie(query):
